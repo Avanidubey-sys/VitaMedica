@@ -1,14 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// GET a single patient by ID
 export async function GET(
   request: Request,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
     const patient = await prisma.patient.findUnique({
-      where: { id: parseInt(context.params.id) },
+      where: { id: parseInt(params.id) },
     });
 
     if (!patient) {
@@ -21,14 +20,13 @@ export async function GET(
   }
 }
 
-// DELETE a patient by ID
 export async function DELETE(
   request: Request,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
     await prisma.patient.delete({
-      where: { id: parseInt(context.params.id) },
+      where: { id: parseInt(params.id) },
     });
 
     return NextResponse.json({ message: "Patient deleted successfully" });
@@ -36,4 +34,3 @@ export async function DELETE(
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
-
