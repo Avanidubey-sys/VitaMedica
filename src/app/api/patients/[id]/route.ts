@@ -8,7 +8,7 @@ export async function GET(
 ) {
   try {
     const patient = await prisma.patient.findUnique({
-      where: { id: parseInt(params.id) },
+      where: { id: Number(params.id) },
     });
 
     if (!patient) {
@@ -17,12 +17,14 @@ export async function GET(
 
     return NextResponse.json(patient, { status: 200 });
   } catch (error) {
+    console.error("Error fetching patient:", error);
     return NextResponse.json(
       { error: "Error fetching patient" },
       { status: 500 }
     );
   }
 }
+
 // UPDATE patient by ID
 export async function PUT(
   request: Request,
@@ -33,34 +35,36 @@ export async function PUT(
     const { name, age, gender } = body;
 
     const updatedPatient = await prisma.patient.update({
-      where: { id: parseInt(params.id) },
+      where: { id: Number(params.id) },
       data: { name, age, gender },
     });
 
     return NextResponse.json(updatedPatient, { status: 200 });
   } catch (error) {
+    console.error("Error updating patient:", error);
     return NextResponse.json(
       { error: "Error updating patient" },
       { status: 500 }
     );
   }
 }
-// DELETE /api/patients/[id]
+
+// DELETE patient by ID
 export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    const deletedPatient = await prisma.patient.delete({
+    await prisma.patient.delete({
       where: { id: Number(params.id) },
     });
-    return NextResponse.json(deletedPatient);
+
+    return NextResponse.json({ message: "Patient deleted successfully" });
   } catch (error) {
+    console.error("Error deleting patient:", error);
     return NextResponse.json(
       { error: "Patient not found" },
       { status: 404 }
     );
   }
 }
-
-

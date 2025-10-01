@@ -3,12 +3,14 @@ import { prisma } from "@/lib/prisma";
 
 // GET doctor by ID
 export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
+  _req: Request,
+  context: { params: { id: string } }
 ) {
   try {
+    const { id } = context.params;
+
     const doctor = await prisma.doctor.findUnique({
-      where: { id: Number(params.id) },
+      where: { id: Number(id) },
       include: { appointments: true }, // optional
     });
 
@@ -27,15 +29,16 @@ export async function GET(
 
 // PUT update doctor
 export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
+  req: Request,
+  context: { params: { id: string } }
 ) {
   try {
-    const body = await request.json();
+    const { id } = context.params;
+    const body = await req.json();
     const { name, specialization, email, phone } = body;
 
     const updatedDoctor = await prisma.doctor.update({
-      where: { id: Number(params.id) },
+      where: { id: Number(id) },
       data: { name, specialization, email, phone },
     });
 
@@ -50,15 +53,17 @@ export async function PUT(
 
 // DELETE doctor
 export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
+  _req: Request,
+  context: { params: { id: string } }
 ) {
   try {
+    const { id } = context.params;
+
     await prisma.doctor.delete({
-      where: { id: Number(params.id) },
+      where: { id: Number(id) },
     });
 
-    return NextResponse.json({ message: "Doctor deleted successfully" });
+    return NextResponse.json({ message: "Doctor deleted successfully" }, { status: 200 });
   } catch (error) {
     return NextResponse.json(
       { error: "Error deleting doctor" },
