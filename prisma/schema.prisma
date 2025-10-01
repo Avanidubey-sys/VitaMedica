@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Patient {
+  id          Int           @id @default(autoincrement())
+  name        String
+  age         Int
+  gender      String
+  createdAt   DateTime      @default(now())
+  appointments Appointment[]
+}
+
+model Doctor {
+  id             Int            @id @default(autoincrement())
+  name           String
+  specialization String
+  email          String         @unique
+  phone          String?
+  appointments   Appointment[]
+}
+
+
+model Appointment {
+  id        Int      @id @default(autoincrement())
+  date      DateTime
+  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  patientId Int
+
+  doctor    Doctor   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  doctorId  Int
+}
+
+model User {
+  id            String   @id @default(cuid())
+  name          String?
+  email         String   @unique
+  password      String
+  role          Role     @default(PATIENT)
+  sessions      Session[]
+  accounts      Account[]
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?
+  access_token       String?
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum Role {
+  ADMIN
+  DOCTOR
+  PATIENT
+}
